@@ -1,76 +1,154 @@
-<<<<<<< HEAD
-# Aws-Microservices-Deployment
-=======
-# AWS Microservices Deployment
+# 🚀 AWS Microservices Deployment with Kubernetes (KIND)
 
-Multi-tier application deployment using Terraform, Ansible, Kubernetes, GitHub Actions, and ArgoCD.
+![AWS](https://img.shields.io/badge/AWS-EC2-orange?logo=amazon-aws)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-KIND-blue?logo=kubernetes)
+![Docker](https://img.shields.io/badge/Docker-Containerized-blue?logo=docker)
+![Terraform](https://img.shields.io/badge/IaC-Terraform-purple?logo=terraform)
+![Python](https://img.shields.io/badge/Backend-Python-green?logo=python)
+![Status](https://img.shields.io/badge/Project-Deployed-success)
 
-## Architecture
+---
 
-- **Frontend:** Nginx serving static HTML
-- **Backend:** Flask REST API
-- **Infrastructure:** AWS EC2 (t2.medium, Ubuntu 22.04)
-- **Orchestration:** Kubernetes (microk8s)
-- **CI/CD:** GitHub Actions + ArgoCD
+## 🧠 Overview
 
-## Prerequisites
+A complete end-to-end DevOps microservices deployment pipeline using modern cloud-native tools.
 
-- AWS account with CLI configured
-- SSH key (`project3-key.pem`) in AWS
-- Docker Hub account
-- Terraform >= 1.0
-- Ansible >= 2.9
+This project demonstrates how to:
 
-## Deployment Steps
+- 🐳 Containerize microservices using Docker
+- ☁️ Provision AWS infrastructure using Terraform
+- ☸️ Deploy a Kubernetes cluster using KIND
+- 🚀 Deploy frontend & backend services
+- 🔧 Debug real-world production issues
 
-### 1. Create Infrastructure
+---
+
+## 🏗️ Architecture
+
+```
+User → AWS EC2 → Kubernetes Cluster (KIND)
+                        │
+              ┌─────────────────────┐
+              │      Frontend       │  🌐 NodePort: 30080
+              └─────────────────────┘
+                        │
+              ┌─────────────────────┐
+              │      Backend        │  ⚙️ ClusterIP
+              └─────────────────────┘
+```
+
+---
+
+## ⚙️ Tech Stack
+
+| Layer             | Technology          |
+|-------------------|---------------------|
+| ☁️ Cloud          | AWS EC2             |
+| 🐳 Containers     | Docker              |
+| ☸️ Orchestration  | Kubernetes (KIND)   |
+| 🏗️ IaC            | Terraform           |
+| 🐍 Backend        | Python              |
+| 🌐 Frontend       | HTML / CSS / JS     |
+
+---
+
+## 🚀 Deployment Workflow
+
+### 1️⃣ Infrastructure Provisioning
 
 ```bash
 cd infrastructure/terraform
 terraform init
-terraform plan
 terraform apply
-# Note the EC2 IP from output
 ```
 
-### 2. Configure EC2
+### 2️⃣ Connect to EC2
 
 ```bash
-cd ../ansible
-# Edit inventory.ini - replace REPLACE_WITH_EC2_IP
-ansible-playbook playbook.yml
+ssh -i <key.pem> ubuntu@<EC2_PUBLIC_IP>
 ```
 
-### 3. Install ArgoCD on K8s
+### 3️⃣ Install Tools
+
+- Docker 🐳
+- kubectl ☸️
+- KIND ⚙️
+
+### 4️⃣ Create Kubernetes Cluster
 
 ```bash
-ssh -i project3-key.pem ubuntu@<EC2-IP>
-microk8s kubectl create namespace argocd
-microk8s kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kind create cluster --name microservices
+kubectl get nodes
 ```
 
-### 4. Deploy Application
+### 5️⃣ Deploy Microservices
 
 ```bash
-microk8s kubectl apply -f kubernetes/argocd/application.yaml
+cd kubernetes/manifests
+kubectl apply -f .
 ```
 
-### 5. Access Application
-
-- Frontend: `http://<EC2-IP>:30080`
-- ArgoCD: `http://<EC2-IP>:8080`
-
-## GitHub Secrets
-
-Add to repository settings:
-
-- `DOCKER_USERNAME`: Your Docker Hub username
-- `DOCKER_TOKEN`: Docker Hub access token
-
-## Cleanup
+### 6️⃣ Verify Deployment
 
 ```bash
-cd infrastructure/terraform
-terraform destroy
+kubectl get pods
+kubectl get svc
 ```
->>>>>>> 2823565 (Initial commit - AWS Microservices Deployment with Kubernetes)
+
+---
+
+## 🌐 Application Access
+
+```
+http://<EC2_PUBLIC_IP>:30080
+```
+
+---
+
+## ⚠️ Challenges Faced
+
+- Pods stuck in `Pending` state due to memory limits
+- `ImagePullBackOff` due to Docker Hub issues
+- SSH connection instability under load
+- KIND cluster instability on low-resource EC2
+
+---
+
+## ✅ Solutions Implemented
+
+- Reduced replicas (4 → 2 → 1) for memory optimization
+- Manually built & pushed Docker images
+- Restarted KIND cluster for stability
+- Debugged using:
+  - `kubectl describe`
+  - `kubectl logs`
+  - `kubectl get events`
+
+---
+
+## 📦 Docker Images
+
+- 🐳 `sarimrasheed/microservice-backend:latest`
+- 🐳 `sarimrasheed/microservice-frontend:latest`
+
+---
+
+## 🔮 Future Improvements
+
+- 🔄 CI/CD with GitHub Actions
+- ☸️ Move to AWS EKS (Managed Kubernetes)
+- 📊 Add Prometheus + Grafana monitoring
+- 🌍 Replace NodePort with LoadBalancer
+
+---
+
+## 👨‍💻 Author
+
+**Sarim Rasheed**  
+🎓 BS Computer Science – FAST NUCES Islamabad
+
+---
+
+## ⭐ Support
+
+If you like this project, don't forget to ⭐ the repository!
