@@ -1,0 +1,28 @@
+# ArgoCD Application - Watches GitHub repo and syncs to cluster
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: microservices-app
+  namespace: argocd
+spec:
+  # Project
+  project: default
+  
+  # Source - GitHub repo
+  source:
+    repoURL: https://github.com/sarim-01/Aws-Microservices-Deployment
+    targetRevision: main
+    path: kubernetes/manifests
+  
+  # Destination - K8s cluster
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  
+  # Sync policy - Auto-sync on changes
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

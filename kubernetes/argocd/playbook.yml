@@ -1,0 +1,58 @@
+# Ansible playbook - Installs microk8s and tools on EC2
+---
+- name: Setup Kubernetes Node
+  hosts: k8s_nodes
+  become: true
+  
+  tasks:
+    # Update system packages
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    # Install microk8s via snap
+    - name: Install microk8s
+      snap:
+        name: microk8s
+        classic: yes
+        channel: 1.28/stable
+
+    # Add ubuntu user to microk8s group
+    - name: Add user to microk8s group
+      user:
+        name: ubuntu
+        groups: microk8s
+        append: yes
+
+    # Wait for microk8s to be ready
+    - name: Wait for microk8s
+      shell: microk8s status --wait-ready
+      changed_when: false
+
+    # Enable required addons
+    - name: Enable microk8s addons
+      shell: microk8s enable dns storage ingress
+      changed_when: false
+
+    # Create kubectl alias
+    - name: Setup kubectl alias
+      lineinfile:
+        path: /home/ubuntu/.bashrc
+        line: "alias kubectl='microk8s kubectl'"
+        create: yes
+
+    # Install helm
+    - name: Install helm
+      snap:
+        name: helm
+        classic: yes
+
+    # Set proper permissions
+    - name: Fix microk8s permissions
+      file:
+        path: /var/snap/microk8s/current/credentials
+        owner: ubuntu
+        group: microk8s
+        mode: '0770'
+        recurse: yes
